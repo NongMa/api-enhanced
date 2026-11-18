@@ -204,7 +204,12 @@ async function constructServer(moduleDefs) {
   )
 
   app.use((req, res, next) => {
-    if (disabledStaticFiles.has(req.path)) {
+    const requestedFile = req.path === '/' ? '/index.html' : req.path
+
+    if (
+      disabledStaticFiles.has(requestedFile) ||
+      disabledStaticFiles.has(req.path)
+    ) {
       res.status(404).send('Not Found')
       return
     }
