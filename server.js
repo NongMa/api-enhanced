@@ -195,6 +195,22 @@ async function constructServer(moduleDefs) {
   /**
    * Serving static files
    */
+  const disabledStaticFiles = new Set(
+    (process.env.DISABLED_STATIC_FILES || '')
+      .split(',')
+      .map((file) => file.trim())
+      .filter(Boolean)
+      .map((file) => `/${file.replace(/^\/+/, '')}`),
+  )
+
+  app.use((req, res, next) => {
+    if (disabledStaticFiles.has(req.path)) {
+      res.status(404).send('Not Found')
+      return
+    }
+    next()
+  })
+
   app.use(express.static(path.join(__dirname, 'public')))
   /**
    * CORS & Preflight request
